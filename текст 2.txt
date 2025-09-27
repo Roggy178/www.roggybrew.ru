@@ -1,0 +1,8 @@
+roggybrew-site/
+├── index.html
+├── style.css
+├── script.js
+└── assets/
+    ├── leather-texture.jpg
+    ├── flip.mp3
+    └── wheat.svg
