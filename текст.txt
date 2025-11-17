@@ -1,37 +1,2813 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ROGGYBREW</title>
-  <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roggybrew — Истинное ремесло</title>
+    <style>
+        /* БАЗОВЫЕ СТИЛИ */
+        :root {
+            --gold: #d4af37;
+            --gold-light: #f7e6b0;
+            --dark: #1e1a16;
+            --panel: #fffdfa;
+            --text: #2c2620;
+            --muted: #6d635a;
+            --overlay-dark: rgba(0,0,0,0.6);
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        html, body {
+            height: 100%;
+            font-family: "Playfair Display", serif;
+            background: linear-gradient(180deg, #fffefb, #fdfaf5);
+            color: var(--text);
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        /* ШАПКА */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1400;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 18px;
+            width: 100%;
+            background: linear-gradient(180deg, rgba(255,255,255,0.15), rgba(255,255,255,0.08));
+            backdrop-filter: blur(12px);
+            box-shadow: 0 4px 30px rgba(0,0,0,0.05);
+            border-bottom: 1px solid rgba(212,175,55,0.1);
+        }
+        
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo-svg {
+            width: 200px;
+            height: auto;
+            display: block;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+            transition: transform 0.3s ease;
+        }
+        
+        .logo-svg:hover {
+            transform: scale(1.02);
+        }
+        
+        .menu-toggle {
+            width: 46px;
+            height: 42px;
+            border-radius: 10px;
+            border: 1px solid rgba(0,0,0,0.05);
+            background: linear-gradient(180deg, #fff, #fbfaf7);
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+            color: var(--gold);
+            box-shadow: 0 6px 24px rgba(0,0,0,0.08);
+            transition: transform .15s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .menu-toggle:active {
+            transform: scale(.95);
+        }
+        
+        .menu-toggle::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.5s;
+        }
+        
+        .menu-toggle:hover::after {
+            left: 100%;
+        }
+        
+        /* БОКОВОЕ МЕНЮ */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: transparent;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity .3s ease, background .28s ease;
+            z-index: 1350;
+            pointer-events: none;
+        }
+        
+        .overlay.show {
+            visibility: visible;
+            opacity: 1;
+            pointer-events: auto;
+            backdrop-filter: blur(5px);
+        }
+        
+        .side-menu {
+            position: fixed;
+            top: 76px;
+            right: -300px;
+            width: 320px;
+            background: rgba(255,253,250,0.95);
+            padding: 16px 14px 20px 14px;
+            border-left: 3px solid var(--gold);
+            border-radius: 12px 0 0 12px;
+            box-shadow: -8px 0 40px rgba(0,0,0,0.15);
+            transition: right .36s cubic-bezier(.2,.9,.25,1);
+            z-index: 1405;
+            max-height: calc(100vh - 76px);
+            overflow: auto;
+            font-size: 0.95rem;
+            backdrop-filter: blur(20px);
+        }
+        
+        .side-menu.open {
+            right: 18px;
+        }
+        
+        .side-menu .section-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 6px 10px 6px;
+            border-bottom: 1px solid rgba(0,0,0,0.04);
+            margin-bottom: 10px;
+        }
+        
+        .side-menu .section-head h4 {
+            font-size: 0.95rem;
+            margin: 0;
+            color: var(--gold);
+            letter-spacing: 0.6px;
+        }
+        
+        .side-menu .section-head .tag {
+            font-size: 0.75rem;
+            color: var(--muted);
+            padding: 4px 8px;
+            border-radius: 999px;
+            background: rgba(0,0,0,0.02);
+        }
+        
+        .side-menu .item {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            padding: 10px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 600;
+            margin: 8px 0;
+            transition: transform .18s, background .18s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .side-menu .item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(212,175,55,0.1), transparent);
+            transition: left 0.5s;
+        }
+        
+        .side-menu .item:hover::before {
+            left: 100%;
+        }
+        
+        .side-menu .item:hover {
+            transform: translateX(8px);
+            background: linear-gradient(90deg, rgba(212,175,55,0.06), rgba(212,175,55,0.03));
+            color: var(--gold);
+            box-shadow: 0 4px 12px rgba(212,175,55,0.1);
+        }
+        
+        .side-menu .item svg {
+            flex-shrink: 0;
+            width: 34px;
+            height: 34px;
+        }
+        
+        .side-menu .item .meta {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .side-menu .item .meta .title {
+            font-weight: 700;
+        }
+        
+        .side-menu .item .meta .desc {
+            font-weight: 500;
+            color: var(--muted);
+            font-size: 0.85rem;
+            margin-top: 4px;
+        }
+        
+        .side-menu .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(0,0,0,0.04), transparent);
+            margin: 12px 0;
+            border-radius: 2px;
+        }
+        
+        .side-menu ul {
+            list-style: none;
+            padding-left: 6px;
+            margin: 6px 0;
+        }
+        
+        .side-menu li {
+            padding: 6px 0;
+            font-weight: 600;
+            color: var(--muted);
+            cursor: pointer;
+            transition: color .2s;
+        }
+        
+        .side-menu li:hover {
+            color: var(--gold);
+        }
+        
+        .side-menu .subsection-title {
+            font-size: 0.85rem;
+            color: var(--gold);
+            margin: 16px 0 8px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            border-bottom: 1px solid rgba(212,175,55,0.2);
+            padding-bottom: 6px;
+        }
+        
+        /* ГЛАВНЫЙ БАННЕР */
+        main {
+            margin-top: 0;
+        }
+        
+        .hero-slider {
+            position: relative;
+            height: 100vh;
+            width: 100%;
+            overflow: hidden;
+            display: block;
+        }
+        
+        .slideshow {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+        }
+        
+        .slideshow img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            z-index: 0;
+        }
+        
+        .slideshow img:first-child {
+            opacity: 1;
+            z-index: 0;
+        }
+        
+        .slideshow img.active {
+            opacity: 1;
+            z-index: 1;
+        }
+        
+        .slideshow::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(0,0,0,0.3) 10%, rgba(0,0,0,0.5) 60%);
+            z-index: 1;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: #fff;
+            padding: 20px;
+        }
+        
+        .hero-content h1 {
+            font-size: clamp(26px, 6vw, 54px);
+            margin: 0;
+            color: var(--gold);
+            letter-spacing: 1px;
+        }
+        
+        .hero-content p {
+            margin-top: 12px;
+            color: rgba(255,255,255,0.92);
+            max-width: 84ch;
+            font-size: clamp(14px, 2vw, 18px);
+        }
+        
+        .hero-cta {
+            margin-top: 20px;
+        }
+        
+        .cta {
+            padding: 12px 20px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--gold), var(--gold-light));
+            color: #1a1208;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 18px 60px rgba(212,175,55,0.12);
+            transition: transform .14s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cta::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.5s;
+        }
+        
+        .cta:hover::before {
+            left: 100%;
+        }
+        
+        .cta:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 28px 90px rgba(212,175,55,0.18);
+        }
+        
+        .dyn-line {
+            margin-top: 14px;
+            color: rgba(255,255,255,0.9);
+            font-size: 1.05rem;
+            font-style: italic;
+            min-height: 1.4em;
+            transition: opacity .5s;
+        }
+        
+        /* МОДАЛЬНЫЕ ОКНА */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            align-items: center;
+            justify-content: center;
+            background: var(--overlay-dark);
+            z-index: 1600;
+            padding: 18px;
+            overflow: auto;
+        }
+        
+        .modal.show {
+            display: flex;
+        }
+        
+        .modal-box {
+            width: 100%;
+            max-width: 860px;
+            border-radius: 12px;
+            overflow: hidden;
+            padding: 24px;
+            position: relative;
+            box-shadow: 0 28px 120px rgba(0,0,0,0.5);
+            border: 3px solid rgba(212,175,55,0.12);
+            backdrop-filter: blur(20px);
+            background: rgba(255,253,250,0.95);
+            animation: modalAppear 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        @keyframes modalAppear {
+            0% {
+                opacity: 0;
+                transform: scale(0.9) translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+        
+        .modal-inner {
+            padding: 18px;
+            background: linear-gradient(135deg, #fffefb, #fbf8f3);
+            border-radius: 8px;
+            position: relative;
+            border: 1px solid rgba(212,175,55,0.1);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+        }
+        
+        .modal-inner h3 {
+            margin: 0;
+            color: var(--gold);
+        }
+        
+        .gold-line {
+            height: 2px;
+            border-radius: 4px;
+            margin: 12px 0;
+            background: linear-gradient(90deg, transparent, var(--gold), var(--gold-light), transparent);
+            box-shadow: 0 2px 4px rgba(212,175,55,0.2);
+        }
+        
+        .close-x {
+            position: absolute;
+            right: 14px;
+            top: 12px;
+            background: var(--gold);
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            color: #fff;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+            line-height: 0;
+        }
+        
+        .modal-close-area {
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            cursor: pointer;
+        }
+        
+        .modal-content {
+            position: relative;
+            z-index: 1;
+            cursor: default;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        /* КАТАЛОГ */
+        .catalog-container {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            border: 1px solid rgba(0,0,0,0.06);
+            border-radius: 8px;
+            padding: 10px;
+        }
+        
+        .catalog-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .catalog-search {
+            flex: 1;
+            min-width: 200px;
+            position: relative;
+        }
+        
+        .catalog-search input {
+            width: 100%;
+            padding: 10px 40px 10px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(0,0,0,0.06);
+            font-size: 0.95rem;
+        }
+        
+        .catalog-filters {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        
+        .filter-btn {
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(0,0,0,0.1);
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.85rem;
+        }
+        
+        .filter-btn.active {
+            background: var(--gold);
+            color: white;
+            border-color: var(--gold);
+        }
+        
+        .filter-btn:hover:not(.active) {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+        
+        .beer-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(212,175,55,0.1);
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .beer-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(212,175,55,0.05), transparent);
+            transition: left 0.5s;
+        }
+        
+        .beer-card:hover::before {
+            left: 100%;
+        }
+        
+        .beer-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--gold);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        .beer-info {
+            flex: 1;
+        }
+        
+        .beer-name {
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        
+        .beer-details {
+            font-size: 0.85rem;
+            color: var(--muted);
+            margin-bottom: 4px;
+        }
+        
+        .beer-description {
+            font-size: 0.8rem;
+            color: var(--muted);
+            font-style: italic;
+        }
+        
+        .beer-price {
+            font-weight: 700;
+            color: var(--gold);
+            font-size: 1.1rem;
+        }
+        
+        .beer-badge {
+            background: var(--gold);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            margin-left: 6px;
+        }
+        
+        .beer-stats {
+            display: flex;
+            gap: 12px;
+            margin-top: 4px;
+        }
+        
+        .beer-stat {
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+        
+        .availability {
+            font-size: 0.8rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        
+        .available {
+            background: rgba(76,175,80,0.1);
+            color: #2e7d32;
+        }
+        
+        .low-stock {
+            background: rgba(255,152,0,0.1);
+            color: #ef6c00;
+        }
+        
+        .out-of-stock {
+            background: rgba(244,67,54,0.1);
+            color: #d32f2f;
+        }
+        
+        /* КОРЗИНА */
+        .cart-stats {
+            margin-top: 20px;
+            padding: 15px;
+            background: linear-gradient(90deg, rgba(212,175,55,0.05), rgba(212,175,55,0.02));
+            border-radius: 8px;
+            border: 1px solid rgba(212,175,55,0.1);
+        }
+        
+        .cart-stats-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .cart-stats-row:last-child {
+            margin-bottom: 0;
+        }
+        
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 4px;
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+        }
+        
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+        
+        .cart-remove {
+            background: transparent;
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            font-size: 18px;
+            margin-left: 10px;
+        }
+        
+        .cart-remove:hover {
+            color: #ff4444;
+        }
+        
+        .catalog-close-btn {
+            margin-top: 20px;
+            width: 100%;
+            padding: 12px 20px;
+            border-radius: 10px;
+            background: transparent;
+            border: 1px solid rgba(0,0,0,0.1);
+            color: var(--text);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .catalog-close-btn:hover {
+            background: rgba(0,0,0,0.03);
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+        
+        /* БОНУСНАЯ КАРТА */
+        .bonus-card {
+            background: linear-gradient(135deg, #1e1a16, #2c2620);
+            color: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .bonus-card::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(212,175,55,0.1) 0%, transparent 70%);
+        }
+        
+        .bonus-card-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .bonus-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .bonus-card-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--gold);
+        }
+        
+        .bonus-card-level {
+            background: var(--gold);
+            color: #1a1208;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+        
+        .bonus-card-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        
+        .bonus-stat {
+            text-align: center;
+        }
+        
+        .bonus-stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--gold);
+        }
+        
+        .bonus-stat-label {
+            font-size: 0.8rem;
+            color: var(--gold-light);
+        }
+        
+        .bonus-progress {
+            background: rgba(255,255,255,0.1);
+            height: 8px;
+            border-radius: 4px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        
+        .bonus-progress-bar {
+            height: 100%;
+            background: var(--gold);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        
+        .bonus-card-footer {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: var(--gold-light);
+        }
+        
+        /* QR-КОД БОНУСНОЙ КАРТЫ */
+        .bonus-qr-section {
+            text-align: center;
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(212,175,55,0.2);
+        }
+        
+        .bonus-card-number {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--gold-light);
+            margin-bottom: 15px;
+            letter-spacing: 2px;
+        }
+        
+        .qr-code-container {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 15px;
+            background: white;
+            border-radius: 12px;
+            padding: 10px;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .qr-code {
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+        
+        .qr-instruction {
+            font-size: 0.85rem;
+            color: var(--gold-light);
+            margin-top: 10px;
+        }
+        
+        /* ФОРМЫ */
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: var(--text);
+        }
+        
+        .form-input, .form-textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(0,0,0,0.1);
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: border-color 0.2s;
+            background: rgba(255,255,255,0.8);
+        }
+        
+        .form-input:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(212,175,55,0.1);
+            background: white;
+        }
+        
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .form-submit {
+            background: linear-gradient(135deg, var(--gold), var(--gold-light));
+            color: #1a1208;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .form-submit::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.5s;
+        }
+        
+        .form-submit:hover::before {
+            left: 100%;
+        }
+        
+        .form-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(212,175,55,0.4);
+        }
+        
+        .form-submit:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .form-success {
+            background: rgba(76, 175, 80, 0.1);
+            border: 1px solid rgba(76, 175, 80, 0.3);
+            color: #2e7d32;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 16px;
+            text-align: center;
+        }
+        
+        .form-error {
+            background: rgba(244, 67, 54, 0.1);
+            border: 1px solid rgba(244, 67, 54, 0.3);
+            color: #d32f2f;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 16px;
+            text-align: center;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        /* КРАФТОВЫЕ ИКОНКИ */
+        .craft-icons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 25px 0;
+            flex-wrap: wrap;
+        }
+        
+        .craft-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--gold), var(--gold-light));
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            box-shadow: 0 8px 25px rgba(212,175,55,0.3);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .craft-icon::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
+            transform: rotate(45deg);
+            transition: all 0.6s ease;
+        }
+        
+        .craft-icon:hover::before {
+            animation: shine 1.5s ease-in-out;
+        }
+        
+        .craft-icon:hover {
+            transform: translateY(-8px) scale(1.1);
+            box-shadow: 0 15px 35px rgba(212,175,55,0.4);
+        }
+        
+        .craft-icon-text {
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-top: 8px;
+            color: #1a1208;
+            text-align: center;
+        }
+        
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+        
+        /* АКЦИИ */
+        .promotion-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+        
+        .promotion-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 2px solid transparent;
+            background-clip: padding-box;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .promotion-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, var(--gold), var(--gold-light), #ffd77a, var(--gold));
+            border-radius: 18px;
+            z-index: -1;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+        
+        .promotion-card:hover::before {
+            opacity: 1;
+        }
+        
+        .promotion-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(212,175,55,0.15);
+        }
+        
+        .promotion-header {
+            background: linear-gradient(90deg, var(--gold), var(--gold-light));
+            color: #1a1208;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .promotion-header::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.3) 50%, transparent 60%);
+            transform: rotate(45deg) translate(20px, -20px);
+        }
+        
+        .promotion-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .promotion-badge {
+            background: rgba(255,255,255,0.3);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+            backdrop-filter: blur(10px);
+        }
+        
+        .promotion-body {
+            padding: 20px;
+            position: relative;
+        }
+        
+        .promotion-description {
+            margin-bottom: 15px;
+            color: var(--text);
+            line-height: 1.5;
+        }
+        
+        .promotion-details {
+            background: rgba(212,175,55,0.05);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 3px solid var(--gold);
+        }
+        
+        .promotion-detail {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            padding: 4px 0;
+        }
+        
+        .promotion-detail:last-child {
+            margin-bottom: 0;
+        }
+        
+        .promotion-detail-label {
+            color: var(--muted);
+            font-weight: 500;
+        }
+        
+        .promotion-detail-value {
+            font-weight: 600;
+            color: var(--gold);
+        }
+        
+        .promotion-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .promotion-btn {
+            flex: 1;
+            padding: 10px 16px;
+            border-radius: 8px;
+            background: var(--gold);
+            color: #1a1208;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-size: 0.9rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .promotion-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.5s;
+        }
+        
+        .promotion-btn:hover::before {
+            left: 100%;
+        }
+        
+        .promotion-btn:hover {
+            background: var(--gold-light);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(212,175,55,0.3);
+        }
+        
+        .promotion-btn.secondary {
+            background: transparent;
+            border: 2px solid var(--gold);
+            color: var(--gold);
+        }
+        
+        .promotion-btn.secondary:hover {
+            background: rgba(212,175,55,0.1);
+            transform: translateY(-2px);
+        }
+        
+        /* ПАРТНЕРСКАЯ ПРОГРАММА */
+        .partnership-section {
+            margin: 30px 0;
+            padding: 25px;
+            background: linear-gradient(135deg, rgba(212,175,55,0.03), rgba(212,175,55,0.01));
+            border-radius: 12px;
+            border: 1px solid rgba(212,175,55,0.1);
+        }
+        
+        .partnership-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+        
+        .partnership-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: 1px solid rgba(212,175,55,0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .partnership-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--gold), var(--gold-light));
+        }
+        
+        .partnership-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(212,175,55,0.1);
+        }
+        
+        .partnership-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: var(--gold);
+        }
+        
+        .partnership-card h4 {
+            color: var(--gold);
+            margin-bottom: 12px;
+            font-size: 1.2rem;
+        }
+        
+        .partnership-benefits {
+            list-style: none;
+            padding: 0;
+            margin: 15px 0;
+        }
+        
+        .partnership-benefits li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .partnership-benefits li:last-child {
+            border-bottom: none;
+        }
+        
+        .benefit-check {
+            color: var(--gold);
+            font-weight: bold;
+        }
+        
+        /* РАЗДЕЛЫ ДЛЯ ИНФОРМАЦИИ */
+        .tasting-section {
+            margin-bottom: 24px;
+        }
+        
+        .tasting-section h4 {
+            color: var(--gold);
+            margin-bottom: 12px;
+            font-size: 1.1rem;
+        }
+        
+        .tasting-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 16px;
+        }
+        
+        .tip-card {
+            background: white;
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid rgba(212,175,55,0.1);
+            margin-bottom: 12px;
+        }
+        
+        .tip-card h5 {
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .info-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid rgba(212,175,55,0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        /* КОЛЛАБОРАЦИИ */
+        .collaboration-showcase {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .collaboration-item {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(212,175,55,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .collaboration-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+        }
+        
+        .collaboration-logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 15px;
+            background: linear-gradient(135deg, var(--gold), var(--gold-light));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: white;
+            font-weight: bold;
+        }
+        
+        /* СТАТИСТИКА ПАРТНЕРОВ */
+        .partner-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .partner-stat {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            border: 1px solid rgba(212,175,55,0.1);
+        }
+        
+        .partner-stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--gold);
+            margin-bottom: 5px;
+        }
+        
+        .partner-stat-label {
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+        
+        /* РАЗДЕЛ СОГЛАСИЯ */
+        .consent-section {
+            margin: 25px 0;
+            border: 1px solid rgba(212,175,55,0.1);
+            border-radius: 12px;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(212,175,55,0.02), rgba(212,175,55,0.01));
+        }
+        
+        .consent-checkbox.enhanced {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            border: 1px solid rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            min-height: 85px;
+            align-items: center;
+        }
+        
+        .consent-checkbox.enhanced:hover {
+            border-color: var(--gold);
+            box-shadow: 0 4px 12px rgba(212,175,55,0.1);
+        }
+        
+        .consent-checkbox.enhanced input[type="checkbox"] {
+            margin-top: 0;
+            transform: scale(1.2);
+            accent-color: var(--gold);
+            flex-shrink: 0;
+        }
+        
+        .consent-checkbox.enhanced label {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            cursor: pointer;
+            flex: 1;
+        }
+        
+        .consent-main {
+            font-weight: 600;
+            color: var(--text);
+            font-size: 0.95rem;
+            line-height: 1.3;
+        }
+        
+        .consent-description {
+            font-size: 0.85rem;
+            color: var(--muted);
+            line-height: 1.4;
+        }
+        
+        .consent-link {
+            color: var(--gold);
+            text-decoration: none;
+            font-weight: 600;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.3s ease;
+        }
+        
+        .consent-link:hover {
+            border-bottom-color: var(--gold);
+        }
+        
+        .consent-required {
+            color: #ff4444;
+            font-weight: 700;
+            margin-left: 4px;
+        }
+        
+        /* УСПЕШНАЯ РЕГИСТРАЦИЯ */
+        .registration-success {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .success-animation {
+            animation: successPulse 2s ease-in-out;
+        }
+        
+        @keyframes successPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        /* ПАРТНЕРСКИЙ СПИСОК */
+        .partner-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .partner-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .partner-name {
+            font-weight: 600;
+        }
+        
+        .partner-address {
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+        
+        /* ЯНДЕКС КАРТА */
+        .yandex-map {
+            width: 100%;
+            height: 400px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        /* ФУТЕР */
+        footer {
+            padding: 18px;
+            text-align: center;
+            background: linear-gradient(135deg, #1e1a16, #2c2620);
+            color: var(--gold);
+            font-family: "Playfair Display", serif;
+        }
+        
+        /* АДАПТИВНЫЕ СТИЛИ */
+        @media (max-width: 900px) {
+            .side-menu {
+                width: 78%;
+            }
+            
+            .menu-toggle {
+                width: 48px;
+                height: 40px;
+            }
+            
+            .logo-svg {
+                width: 180px;
+            }
+            
+            .hero-content h1 {
+                font-size: clamp(22px, 8vw, 40px);
+            }
+            
+            .tasting-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .promotion-grid,
+            .partnership-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .promotion-card,
+            .partnership-card {
+                border-radius: 12px;
+                margin: 0 10px;
+            }
+            
+            .promotion-header,
+            .partnership-section {
+                padding: 15px;
+            }
+            
+            .promotion-body {
+                padding: 15px;
+            }
+            
+            .promotion-actions {
+                flex-direction: column;
+            }
+            
+            .craft-icons {
+                gap: 15px;
+            }
+            
+            .craft-icon {
+                width: 70px;
+                height: 70px;
+                font-size: 1.7rem;
+            }
+            
+            .partnership-section {
+                padding: 20px 15px;
+            }
+            
+            .collaboration-showcase {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-box {
+                margin: 10px;
+                padding: 15px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .logo-svg {
+                width: 160px;
+            }
+            
+            .hero-content p {
+                font-size: 14px;
+            }
+            
+            .cta {
+                padding: 10px 16px;
+            }
+            
+            .promotion-product-actions {
+                flex-direction: column;
+            }
+            
+            .craft-icons {
+                gap: 10px;
+            }
+            
+            .craft-icon {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+            
+            .craft-icon-text {
+                font-size: 0.6rem;
+            }
+            
+            .collaboration-showcase {
+                grid-template-columns: 1fr;
+            }
+            
+            .partner-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .promotion-card {
+                margin: 0 5px;
+            }
+        }
+        
+        /* ДОПОЛНИТЕЛЬНЫЕ АНИМАЦИИ */
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .float-animation {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+            100% {
+                transform: translateY(0px);
+            }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(212,175,55,0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(212,175,55,0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(212,175,55,0);
+            }
+        }
+        
+        .smooth-scroll {
+            scroll-behavior: smooth;
+        }
+    </style>
 </head>
-<body>
-  <div class="book" id="book">
-    <div class="cover" id="cover">
-      <img src="assets/wheat.svg" class="wheat" />
-      <div class="logo">
-        <div>ИСТИННОЕ НОВОЕ РЕМЕСЛО</div>
-        <div class="brand">ROGGYBREW</div>
-        <div>БЕЗУПРЕЧНО ИГРИВЫЙ</div>
-      </div>
+<body class="smooth-scroll">
+    <!-- ШАПКА -->
+    <header>
+        <div class="brand">
+            <svg class="logo-svg" viewBox="0 0 320 80" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="lg" x1="0" x2="1">
+                        <stop offset="0" stop-color="#f7e6b0"/>
+                        <stop offset="0.45" stop-color="#d4af37"/>
+                        <stop offset="1" stop-color="#ffd77a"/>
+                    </linearGradient>
+                </defs>
+                <g transform="translate(12,10)">
+                    <path d="M12 26 C6 12 20 6 30 10 C36 14 36 26 28 34 C20 42 10 40 12 26Z" fill="none" stroke="url(#lg)" stroke-width="3" stroke-linejoin="round"/>
+                    <text x="72" y="48" font-family="Playfair Display, Georgia, serif" font-size="22" fill="url(#lg)">ROGGYBREW</text>
+                </g>
+            </svg>
+        </div>
+        <button id="menuBtn" class="menu-toggle" aria-label="Меню">☰</button>
+    </header>
+
+    <!-- ОВЕРЛЕЙ -->
+    <div id="overlay" class="overlay" aria-hidden="true"></div>
+
+    <!-- БОКОВОЕ МЕНЮ -->
+    <nav id="sideMenu" class="side-menu" aria-hidden="true">
+        <div class="section-head" aria-hidden="true">
+            <h4>Меню — ROGGYBREW</h4>
+            <span class="tag">Премиум</span>
+        </div>
+
+        <div class="subsection-title">Продукция</div>
+        
+        <a class="item" data-target="catalogModal" href="#">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 2h10l-1 12a3 3 0 01-3 3H11a3 3 0 01-3-3L7 2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div class="meta">
+                <div class="title">Каталог</div>
+                <div class="desc">Все сорта, цены и объёмы — быстро в пару кликов</div>
+            </div>
+        </a>
+
+        <a class="item" data-target="newsModal" href="#">
+            <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.5"/></svg>
+            <div class="meta">
+                <div class="title">Акции и новости</div>
+                <div class="desc">Специальные предложения и лимитированные релизы</div>
+            </div>
+        </a>
+
+        <div class="divider" role="separator"></div>
+
+        <div class="subsection-title">О компании</div>
+        
+        <a class="item" data-target="aboutModal" href="#">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2v6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="12" cy="14" r="6" stroke="currentColor" stroke-width="1.5"/></svg>
+            <div class="meta">
+                <div class="title">О нас</div>
+                <div class="desc">История, команда и философия бренда</div>
+            </div>
+        </a>
+
+        <a class="item" data-target="contactsModal" href="#">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="1.5"/></svg>
+            <div class="meta">
+                <div class="title">Контакты</div>
+                <div class="desc">Адрес, телефон, email и форма обратной связи</div>
+            </div>
+        </a>
+
+        <a class="item" data-target="partnershipModal" href="#">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="currentColor" stroke-width="1.5"/><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="1.5"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="currentColor" stroke-width="1.5"/></svg>
+            <div class="meta">
+                <div class="title">Партнерская программа</div>
+                <div class="desc">Сотрудничество для баров и ресторанов</div>
+            </div>
+        </a>
+
+        <div class="divider"></div>
+
+        <div class="subsection-title">Покупка</div>
+        
+        <a class="item" data-target="buyModal" href="#">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 3h18v6H3z" stroke="currentColor" stroke-width="1.5"/><path d="M5 21h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <div class="meta">
+                <div class="title">Где купить</div>
+                <div class="desc">Розница, бары и точки продаж на карте</div>
+            </div>
+        </a>
+
+        <div class="divider"></div>
+
+        <div class="subsection-title">Аккаунт</div>
+        
+        <a class="item" data-target="registerModal" href="#">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 12a5 5 0 100-10 5 5 0 000 10z" stroke="currentColor" stroke-width="1.5"/><path d="M21 21v-2a4 4 0 00-4-4H7a4 4 0 00-4 4v2" stroke="currentColor" stroke-width="1.5"/></svg>
+            <div class="meta">
+                <div class="title">Регистрация</div>
+                <div class="desc">Личный кабинет и подписка на релизы</div>
+            </div>
+        </a>
+
+        <a class="item" data-target="bonusCardModal" href="#">
+            <svg viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M2 10h20" stroke="currentColor" stroke-width="1.5"/></svg>
+            <div class="meta">
+                <div class="title">Бонусная карта</div>
+                <div class="desc">Накопительная система и скидки</div>
+            </div>
+        </a>
+
+        <div style="margin-top:14px;border-top:1px solid rgba(0,0,0,0.03);padding-top:10px;font-size:0.88rem;color:var(--muted)">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+                <div>Поддержка: <a href="mailto:help@roggybrew.ru" style="color:var(--gold);text-decoration:none">help@roggybrew.ru</a></div>
+                <div style="font-weight:700;color:var(--gold)">v.2025</div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ОСНОВНОЙ КОНТЕНТ -->
+    <main>
+        <section class="hero-slider" role="region" aria-label="Главный баннер">
+            <div class="slideshow" aria-hidden="true">
+                <img src="https://images.unsplash.com/photo-1471421298428-1513ab720a8e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Bar interior 1" class="active" loading="eager">
+                <img src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Club interior" loading="lazy">
+                <img src="https://images.unsplash.com/photo-1532634922-8fe0b757fb13?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Bar interior 2" loading="lazy">
+            </div>
+
+            <div class="hero-content" aria-live="polite">
+                <h1>Roggybrew — истинное ремесло</h1>
+                <div class="dyn-line" id="dynText">Ремесленные рецепты и элегантный вкус, вдохновлённые Петербургом.</div>
+                <div class="hero-cta">
+                    <button class="cta" data-target="catalogModal">Посмотреть каталог</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- МОДАЛЬНЫЕ ОКНА -->
+    <!-- Каталог -->
+    <div id="catalogModal" class="modal" role="dialog" aria-modal="true">
+        <div class="modal-box">
+            <div class="modal-close-area" data-close="catalogModal"></div>
+            <div class="modal-content">
+                <div class="modal-inner">
+                    <button class="close-x" data-close="catalogModal" aria-label="Закрыть">&times;</button>
+                    <h3>Каталог крафтового пива</h3>
+                    <div class="gold-line"></div>
+                    
+                    <div class="catalog-header">
+                        <div class="catalog-search">
+                            <input type="text" id="catalogSearch" placeholder="Поиск по названию или описанию">
+                        </div>
+                    </div>
+
+                    <div class="catalog-filters">
+                        <button class="filter-btn active" data-filter="all">Все сорта</button>
+                        <button class="filter-btn" data-filter="ipa">IPA</button>
+                        <button class="filter-btn" data-filter="lager">Лагеры</button>
+                        <button class="filter-btn" data-filter="stout">Стауты</button>
+                        <button class="filter-btn" data-filter="wheat">Пшеничные</button>
+                        <button class="filter-btn" data-filter="special">Специальные</button>
+                    </div>
+
+                    <div class="catalog-container" id="catalogContainer">
+                        <!-- Каталог будет заполнен через JavaScript -->
+                    </div>
+
+                    <div class="cart-stats">
+                        <div class="cart-stats-row">
+                            <span style="font-weight:600;">Товаров в корзине:</span>
+                            <span id="cartCount" style="font-weight:700;color:var(--gold);">0</span>
+                        </div>
+                        <div class="cart-stats-row">
+                            <span style="font-weight:600;">Общая сумма:</span>
+                            <span id="cartTotal" style="font-weight:700;color:var(--gold);">0 ₽</span>
+                        </div>
+                    </div>
+
+                    <button id="checkoutBtn" class="cta" style="margin-top:15px;width:100%;">Оформить заказ</button>
+                    
+                    <h3 style="margin-top:24px;margin-bottom:12px;">Ваша корзина</h3>
+                    <ul id="cartList"></ul>
+
+                    <button class="catalog-close-btn" data-close="catalogModal">Закрыть каталог</button>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="page left"></div>
-    <div class="page right"></div>
-    <div class="page left"></div>
-    <div class="page right"></div>
-
-    <div class="menu" id="menu">
-      <a href="#about"><i class="fas fa-info-circle"></i> О нас</a>
-      <a href="#beers"><i class="fas fa-beer-mug-empty"></i> Наши сорта</a>
-      <a href="#partners"><i class="fas fa-handshake"></i> Партнёры</a>
-      <a href="#contact"><i class="fas fa-envelope"></i> Контакты</a>
+    <!-- Бонусная карта -->
+    <div id="bonusCardModal" class="modal" role="dialog" aria-modal="true">
+        <div class="modal-box">
+            <div class="modal-close-area" data-close="bonusCardModal"></div>
+            <div class="modal-content">
+                <div class="modal-inner">
+                    <button class="close-x" data-close="bonusCardModal" aria-label="Закрыть">&times;</button>
+                    <h3>Бонусная карта</h3>
+                    <div class="gold-line"></div>
+                    
+                    <div class="bonus-card">
+                        <div class="bonus-card-content">
+                            <div class="bonus-card-header">
+                                <div class="bonus-card-title">Roggybrew Premium</div>
+                                <div class="bonus-card-level" id="bonusLevel">Стандарт</div>
+                            </div>
+                            
+                            <div class="bonus-qr-section">
+                                <div class="bonus-card-number" id="bonusCardNumber">RB0000000000</div>
+                                <div class="qr-code-container">
+                                    <img id="bonusCardQr" class="qr-code" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://roggybrew.ru/bonus-card" alt="QR код бонусной карты">
+                                </div>
+                                <div class="qr-instruction">
+                                    Покажите этот код для начисления баллов
+                                </div>
+                            </div>
+                            
+                            <div class="bonus-card-stats">
+                                <div class="bonus-stat">
+                                    <div class="bonus-stat-value" id="bonusPointsValue">0</div>
+                                    <div class="bonus-stat-label">Баллы</div>
+                                </div>
+                                <div class="bonus-stat">
+                                    <div class="bonus-stat-value" id="bonusDiscount">0%</div>
+                                    <div class="bonus-stat-label">Скидка</div>
+                                </div>
+                                <div class="bonus-stat">
+                                    <div class="bonus-stat-value" id="bonusPurchases">0</div>
+                                    <div class="bonus-stat-label">Покупки</div>
+                                </div>
+                            </div>
+                            <div class="bonus-progress">
+                                <div class="bonus-progress-bar" id="bonusProgressBar" style="width: 0%"></div>
+                            </div>
+                            <div class="bonus-card-footer">
+                                <span>До следующего уровня:</span>
+                                <span id="bonusNextLevel">100 баллов</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="tasting-section">
+                        <h4>Как работает бонусная система</h4>
+                        <div class="tasting-grid">
+                            <div class="tip-card">
+                                <h5>Накопление баллов</h5>
+                                <p>За каждые 100 рублей в чеке вы получаете 1 балл. Баллы начисляются после подтверждения заказа.</p>
+                            </div>
+                            <div class="tip-card">
+                                <h5>Уровни карты</h5>
+                                <p><strong>Стандарт</strong> (0-499 баллов) - 1 балл за 100 рублей<br>
+                                   <strong>Серебро</strong> (500-1499 баллов) - 1.5 балла за 100 рублей, скидка 5%<br>
+                                   <strong>Золото</strong> (1500+ баллов) - 2 балла за 100 рублей, скидка 10%</p>
+                            </div>
+                            <div class="tip-card">
+                                <h5>Специальные акции</h5>
+                                <p>Участвуйте в акциях и получайте дополнительные бонусы. Следите за новостями в разделе "Акции и новости".</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <audio id="flipSound" src="assets/flip.mp3" preload="auto"></audio>
-  <script src="script.js"></script>
+    <!-- Регистрация -->
+    <div id="registerModal" class="modal">
+        <div class="modal-box">
+            <div class="modal-close-area" data-close="registerModal"></div>
+            <div class="modal-content">
+                <div class="modal-inner">
+                    <button class="close-x" data-close="registerModal">&times;</button>
+                    <h3>Регистрация</h3>
+                    <div class="gold-line"></div>
+                    
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <h4>Преимущества аккаунта</h4>
+                            <p>Личный кабинет, история заказов, персональные скидки, подписка на новые релизы и эксклюзивные предложения.</p>
+                            <p>Получите мгновенный доступ к бонусной программе и начните копить баллы с первой покупки.</p>
+                        </div>
+                        <div class="info-card">
+                            <h4>Безопасность данных</h4>
+                            <p>Мы гарантируем конфиденциальность ваших персональных данных и используем современные методы шифрования.</p>
+                            <p>Ваша информация будет использоваться только для улучшения сервиса и персонализации предложений.</p>
+                        </div>
+                    </div>
+
+                    <form id="registerForm">
+                        <div class="form-group">
+                            <label class="form-label">Имя</label>
+                            <input type="text" class="form-input" placeholder="Ваше имя" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-input" placeholder="example@mail.com" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Телефон</label>
+                            <input type="tel" class="form-input" placeholder="+7 (999) 999-99-99" name="phone" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Пароль</label>
+                            <input type="password" class="form-input" placeholder="Не менее 6 символов" name="password" required minlength="6">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Подтвердите пароль</label>
+                            <input type="password" class="form-input" placeholder="Повторите пароль" name="password_confirm" required minlength="6">
+                        </div>
+                        
+                        <div class="consent-section">
+                            <div class="consent-checkbox enhanced">
+                                <input type="checkbox" id="consentAgree" name="consent_agree" required>
+                                <label for="consentAgree">
+                                    <span class="consent-main">Я согласен с правилами обработки персональных данных</span>
+                                    <span class="consent-required">*</span>
+                                    <span class="consent-description">Нажимая галочку, вы подтверждаете согласие на сбор и обработку ваших персональных данных в соответствии с нашей <a href="#" class="consent-link">Политикой конфиденциальности</a></span>
+                                </label>
+                            </div>
+                            
+                            <div class="consent-checkbox enhanced">
+                                <input type="checkbox" id="marketingAgree" name="marketing_agree">
+                                <label for="marketingAgree">
+                                    <span class="consent-main">Я хочу получать информацию об акциях и новых продуктах</span>
+                                    <span class="consent-description">Подпишитесь на рассылку, чтобы первыми узнавать о новых сортах пива и специальных предложениях</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="form-submit" id="registerSubmit">
+                            <span class="btn-text">Зарегистрироваться</span>
+                        </button>
+                    </form>
+                    
+                    <div id="registerResult"></div>
+
+                    <div class="registration-success" id="successSection" style="display: none;">
+                        <div class="craft-icons">
+                            <div class="craft-icon">
+                                ????
+                                <div class="craft-icon-text">Подарок</div>
+                            </div>
+                            <div class="craft-icon">
+                                ⭐
+                                <div class="craft-icon-text">Бонусы</div>
+                            </div>
+                            <div class="craft-icon">
+                                ✉️
+                                <div class="craft-icon-text">Рассылка</div>
+                            </div>
+                            <div class="craft-icon">
+                                ????
+                                <div class="craft-icon-text">Уровни</div>
+                            </div>
+                        </div>
+                        <div style="text-align: center; margin-top: 20px;">
+                            <h4 style="color: var(--gold); margin-bottom: 15px;">Добро пожаловать в семью Roggybrew!</h4>
+                            <p>Ваша бонусная карта была автоматически создана. Проверьте её в разделе "Бонусная карта".</p>
+                            <p style="margin-top: 10px; font-size: 0.9rem; color: var(--muted);">На ваш email отправлено письмо с подтверждением регистрации и данными бонусной карты.</p>
+                            <button class="cta" data-target="bonusCardModal" style="margin-top: 15px;">Посмотреть бонусную карту</button>
+                        </div>
+                    </div>
+
+                    <div class="registration-benefits" style="margin-top: 25px; padding: 20px; background: rgba(212,175,55,0.03); border-radius: 8px;">
+                        <h4 style="color: var(--gold); margin-bottom: 15px;">Что вы получаете после регистрации:</h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span style="color: var(--gold); font-size: 1.2rem;">????</span>
+                                <span>Скидка 5% на первый заказ</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span style="color: var(--gold); font-size: 1.2rem;">⭐</span>
+                                <span>Доступ к бонусной программе</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span style="color: var(--gold); font-size: 1.2rem;">✉️</span>
+                                <span>Эксклюзивные предложения</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span style="color: var(--gold); font-size: 1.2rem;">????</span>
+                                <span>История заказов</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Акции и новости -->
+    <div id="newsModal" class="modal">
+        <div class="modal-box">
+            <div class="modal-close-area" data-close="newsModal"></div>
+            <div class="modal-content">
+                <div class="modal-inner">
+                    <button class="close-x" data-close="newsModal">&times;</button>
+                    <h3>Акции и новости</h3>
+                    <div class="gold-line"></div>
+                    
+                    <div class="promotion-grid">
+                        <div class="promotion-card">
+                            <div class="promotion-header">
+                                <div class="promotion-title">Двойные бонусы</div>
+                                <div class="promotion-badge">Активно</div>
+                            </div>
+                            <div class="promotion-body">
+                                <div class="promotion-description">
+                                    Получайте двойные бонусные баллы за все покупки в этом месяце. Акция действует до конца месяца.
+                                </div>
+                                <div class="promotion-details">
+                                    <div class="promotion-detail">
+                                        <span class="promotion-detail-label">Срок действия:</span>
+                                        <span class="promotion-detail-value">до 31.12.2025</span>
+                                    </div>
+                                    <div class="promotion-detail">
+                                        <span class="promotion-detail-label">Бонусы:</span>
+                                        <span class="promotion-detail-value">2x баллы</span>
+                                    </div>
+                                    <div class="promotion-detail">
+                                        <span class="promotion-detail-label">Условия:</span>
+                                        <span class="promotion-detail-value">Минимум 1000 ₽ в чеке</span>
+                                    </div>
+                                </div>
+                                <div class="promotion-actions">
+                                    <button class="promotion-btn" data-target="catalogModal">Сделать заказ</button>
+                                    <button class="promotion-btn secondary" data-target="registerModal">Зарегистрироваться</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- О нас -->
+    <div id="aboutModal" class="modal">
+        <div class="modal-box">
+            <div class="modal-close-area" data-close="aboutModal"></div>
+            <div class="modal-content">
+                <div class="modal-inner">
+                    <button class="close-x" data-close="aboutModal">&times;</button>
+                    <h3>О нас</h3>
+                    <div class="gold-line"></div>
+                    
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <h4>Наша философия</h4>
+                            <p><strong>ROGGYBREW</strong> — независимая крафтовая пивоварня, стремящаяся сочетать традиционные рецептуры и современные техники варки.</p>
+                            <p>Мы верим, что настоящее пиво — это искусство, рожденное из страсти к ремеслу и уважения к традициям. Каждая партия создается с любовью к деталям и вниманием к качеству.</p>
+                        </div>
+                        <div class="info-card">
+                            <h4>История</h4>
+                            <p>Основана в 2025 году группой энтузиастов в Санкт-Петербурге. Начинали с небольшой пивоварни на 100 литров в гараже.</p>
+                            <p>Сегодня мы производим более 15 сортов пива и сотрудничаем с лучшими барами города. Наша миссия — привнести культуру крафтового пива в каждый дом.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Контакты -->
+    <div id="contactsModal" class="modal">
+        <div class="modal-box">
+            <div class="modal-close-area" data-close="contactsModal"></div>
+            <div class="modal-content">
+                <div class="modal-inner">
+                    <button class="close-x" data-close="contactsModal">&times;</button>
+                    <h3>Контакты</h3>
+                    <div class="gold-line"></div>
+                    
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <h4>Наш адрес</h4>
+                            <p>Санкт-Петербург, наб. реки Фонтанки, 123</p>
+                            <p style="margin-top: 10px; font-size: 0.9rem; color: var(--muted);">Рядом с метро "Гостиный Двор", 5 минут пешком</p>
+                        </div>
+                        <div class="info-card">
+                            <h4>Телефон</h4>
+                            <p>+7 (981) 716-46-28</p>
+                            <p style="margin-top: 10px; font-size: 0.9rem; color: var(--muted);">Для оптовых заказов: +7 (981) 716-46-29</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Партнерская программа -->
+    <div id="partnershipModal" class="modal">
+        <div class="modal-box">
+            <div class="modal-close-area" data-close="partnershipModal"></div>
+            <div class="modal-content">
+                <div class="modal-inner">
+                    <button class="close-x" data-close="partnershipModal">&times;</button>
+                    <h3>Партнерская программа</h3>
+                    <div class="gold-line"></div>
+                    
+                    <div class="partnership-section">
+                        <h4>Сотрудничество с Roggybrew</h4>
+                        <p>Мы предлагаем выгодные условия для баров, ресторанов и магазинов. Станьте частью семьи Roggybrew и получите эксклюзивные преимущества.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Где купить -->
+    <div id="buyModal" class="modal">
+        <div class="modal-box">
+            <div class="modal-close-area" data-close="buyModal"></div>
+            <div class="modal-content">
+                <div class="modal-inner">
+                    <button class="close-x" data-close="buyModal">&times;</button>
+                    <h3>Где купить</h3>
+                    <div class="gold-line"></div>
+                    
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <h4>Контакты</h4>
+                            <p><strong>Телефон:</strong> +7 (981) 716-46-28<br>
+                               <strong>Email:</strong> roggy.brew@yandex.com<br>
+                               <strong>Адрес:</strong> Санкт-Петербург, наб. реки Фонтанки, 123<br>
+                               <strong>Часы работы:</strong> Пн-Вс 10:00-22:00</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ФУТЕР -->
+    <footer>
+        <div style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; margin-bottom: 20px;">
+                <div>
+                    <h4 style="color: var(--gold); margin-bottom: 15px;">Roggybrew</h4>
+                    <p style="color: var(--gold-light); font-size: 0.9rem;">Крафтовое пиво высшего качества из Санкт-Петербурга. Истинное ремесло в каждой капле.</p>
+                </div>
+                <div>
+                    <h4 style="color: var(--gold); margin-bottom: 15px;">Контакты</h4>
+                    <p style="color: var(--gold-light); font-size: 0.9rem;">+7 (981) 716-46-28<br>roggy.brew@yandex.com<br>СПб, наб. Фонтанки, 123</p>
+                </div>
+                <div>
+                    <h4 style="color: var(--gold); margin-bottom: 15px;">Часы работы</h4>
+                    <p style="color: var(--gold-light); font-size: 0.9rem;">Пн-Пт: 10:00-22:00<br>Сб-Вс: 11:00-23:00</p>
+                </div>
+            </div>
+            <div style="border-top: 1px solid rgba(212,175,55,0.3); padding-top: 15px; text-align: center;">
+                <p style="color: var(--gold-light); font-size: 0.85rem;">© 2025 ROGGYBREW. Все права защищены.<br>Крафтовое пивоварение — это искусство</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // ОСНОВНОЙ КОД ПРИЛОЖЕНИЯ
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded');
+
+            // Инициализация меню
+            const menuBtn = document.getElementById('menuBtn');
+            const sideMenu = document.getElementById('sideMenu');
+            const overlay = document.getElementById('overlay');
+
+            function openMenu(){ 
+                sideMenu.classList.add('open'); 
+                overlay.classList.add('show'); 
+                overlay.style.background = 'rgba(253,250,245,0.92)'; 
+            }
+            
+            function closeMenu(){ 
+                sideMenu.classList.remove('open'); 
+                overlay.classList.remove('show'); 
+                overlay.style.background = 'transparent'; 
+            }
+            
+            if (menuBtn) menuBtn.addEventListener('click', () => sideMenu.classList.contains('open') ? closeMenu() : openMenu());
+            if (overlay) overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    closeMenu(); 
+                    document.querySelectorAll('.modal.show').forEach(m=>m.classList.remove('show')); 
+                    overlay.classList.remove('show'); 
+                }
+            });
+
+            // Обработчики модальных окон - ИСПРАВЛЕННЫЙ КОД
+            document.addEventListener('click', function(e){
+                const trg = e.target.closest('[data-target]');
+                if(trg){
+                    e.preventDefault();
+                    const tgt = trg.dataset.target;
+                    if(tgt){
+                        closeMenu();
+                        const modalEl = document.getElementById(tgt);
+                        if(modalEl){
+                            modalEl.classList.add('show');
+                            overlay.classList.add('show');
+                            overlay.style.background = 'rgba(0,0,0,0.6)';
+                            
+                            if(tgt === 'catalogModal') renderCatalog();
+                            if(tgt === 'bonusCardModal') updateBonusCardUI();
+                        }
+                    }
+                    return;
+                }
+
+                const closeArea = e.target.closest('.modal-close-area');
+                if(closeArea){
+                    e.preventDefault();
+                    const id = closeArea.dataset.close;
+                    if(id){
+                        const modalEl = document.getElementById(id);
+                        if(modalEl) modalEl.classList.remove('show');
+                        if(!document.querySelector('.modal.show')){ 
+                            overlay.classList.remove('show'); 
+                        }
+                    }
+                    return;
+                }
+
+                const closeBtn = e.target.closest('[data-close]');
+                if(closeBtn){
+                    e.preventDefault();
+                    const id = closeBtn.dataset.close;
+                    if(id){
+                        const modalEl = document.getElementById(id);
+                        if(modalEl) modalEl.classList.remove('show');
+                    } else {
+                        const modal = closeBtn.closest('.modal');
+                        if(modal) modal.classList.remove('show');
+                    }
+                    if(!document.querySelector('.modal.show')){ 
+                        overlay.classList.remove('show'); 
+                    }
+                    return;
+                }
+            });
+
+            // Закрытие по ESC
+            document.addEventListener('keydown', function(e){ 
+                if(e.key === 'Escape'){ 
+                    document.querySelectorAll('.modal.show').forEach(m=>m.classList.remove('show')); 
+                    closeMenu(); 
+                    overlay.classList.remove('show'); 
+                } 
+            });
+
+            // Слайдер
+            const slides = Array.from(document.querySelectorAll('.slideshow img'));
+            let idx = 0;
+            const slideCount = slides.length || 1;
+            const changeInterval = 6000;
+
+            if (slides.length > 0) {
+                slides.forEach((s,i)=> s.classList.toggle('active', i===0));
+
+                function nextSlide(){
+                    slides[idx].classList.remove('active');
+                    idx = (idx + 1) % slideCount;
+                    slides[idx].classList.add('active');
+                    updateDynText(idx);
+                }
+                let sliderTimer = setInterval(nextSlide, changeInterval);
+
+                const observer = new MutationObserver(()=> {
+                    const anyOpen = !!document.querySelector('.modal.show');
+                    if(anyOpen){ 
+                        clearInterval(sliderTimer); 
+                        sliderTimer = null; 
+                    }
+                    else { 
+                        if(!sliderTimer) sliderTimer = setInterval(nextSlide, changeInterval); 
+                    }
+                });
+                observer.observe(document.body, { subtree: true, attributes: true, attributeFilter: ['class'] });
+            }
+
+            // Динамический текст
+            const dynText = document.getElementById('dynText');
+            const dynLines = [
+                "Ремесленные рецепты и элегантный вкус, вдохновлённые Петербургом.",
+                "Точная варка, отборные ингредиенты, характер в каждом глотке.",
+                "Атмосфера бара и лесная нота — встреча природы и города."
+            ];
+            let dynIndex = 0;
+            if(dynText) dynText.textContent = dynLines[0];
+
+            function updateDynText(i){
+                dynIndex = i % dynLines.length;
+                if(dynText){
+                    dynText.style.opacity = 0;
+                    setTimeout(()=>{ 
+                        dynText.textContent = dynLines[dynIndex]; 
+                        dynText.style.opacity = 1; 
+                    }, 250);
+                }
+            }
+
+            // Инициализация каталога и корзины
+            renderCatalog();
+            updateCartStats();
+
+            // Инициализация бонусной карты
+            updateBonusCardUI();
+
+            console.log('All scripts initialized successfully');
+        });
+
+        // РАСШИРЕННЫЙ КАТАЛОГ ПИВА
+        const beerCatalog = [
+            {
+                id: 1,
+                name: "IPA «Хмельная дерзость»",
+                category: "ipa",
+                style: "Американский IPA",
+                abv: 6.5,
+                ibu: 65,
+                price: 150,
+                description: "Смелый американский IPA с цитрусовыми нотами и хвойной горчинкой",
+                availability: "available",
+                badges: ["хит"],
+                volume: "0.5л"
+            },
+            {
+                id: 2,
+                name: "Double IPA «Нева Грин»",
+                category: "ipa",
+                style: "Имперский IPA",
+                abv: 8.2,
+                ibu: 85,
+                price: 180,
+                description: "Мощный дабл IPA с тропическими фруктами и смолистой горчинкой",
+                availability: "available",
+                badges: ["новинка"],
+                volume: "0.5л"
+            },
+            {
+                id: 3,
+                name: "Лагер «Кристальная чистота»",
+                category: "lager",
+                style: "Пльзеньский лагер",
+                abv: 4.8,
+                ibu: 25,
+                price: 110,
+                description: "Классический чешский лагер с чистым солодовым профилем",
+                availability: "available",
+                badges: [],
+                volume: "0.5л"
+            },
+            {
+                id: 4,
+                name: "Стаут «Северная ночь»",
+                category: "stout",
+                style: "Имперский стаут",
+                abv: 9.0,
+                ibu: 45,
+                price: 200,
+                description: "Богатый и плотный стаут с нотами шоколада, кофе и ванили",
+                availability: "available",
+                badges: ["новинка"],
+                volume: "0.5л"
+            },
+            {
+                id: 5,
+                name: "Пшеничное «Белые ночи»",
+                category: "wheat",
+                style: "Хефевайцен",
+                abv: 5.2,
+                ibu: 15,
+                price: 120,
+                description: "Освежающее пшеничное пиво с банановыми и гвоздичными нотами",
+                availability: "available",
+                badges: [],
+                volume: "0.5л"
+            },
+            {
+                id: 6,
+                name: "Пэйл Эль «Солнечный берег»",
+                category: "ipa",
+                style: "Американский пэйл эль",
+                abv: 5.5,
+                ibu: 35,
+                price: 130,
+                description: "Светлый эль с цитрусовым ароматом и сбалансированной горчинкой",
+                availability: "available",
+                badges: [],
+                volume: "0.5л"
+            },
+            {
+                id: 7,
+                name: "Портер «Балтийский»",
+                category: "stout",
+                style: "Балтийский портер",
+                abv: 7.5,
+                ibu: 30,
+                price: 170,
+                description: "Традиционный балтийский портер с карамельными и темно-фруктовыми тонами",
+                availability: "available",
+                badges: [],
+                volume: "0.5л"
+            },
+            {
+                id: 8,
+                name: "Сайдер «Яблочный сад»",
+                category: "special",
+                style: "Яблочный сидр",
+                abv: 5.0,
+                ibu: 0,
+                price: 140,
+                description: "Освежающий яблочный сидр с натуральной сладостью и кислинкой",
+                availability: "available",
+                badges: ["хит"],
+                volume: "0.5л"
+            },
+            {
+                id: 9,
+                name: "Сезонное «Осенний лист»",
+                category: "special",
+                style: "Тыквенный эль",
+                abv: 6.0,
+                ibu: 20,
+                price: 160,
+                description: "Сезонный эль с тыквой и осенними специями",
+                availability: "low-stock",
+                badges: ["сезонное"],
+                volume: "0.5л"
+            },
+            {
+                id: 10,
+                name: "Блонд Эль «Золотой рассвет»",
+                category: "lager",
+                style: "Блонд эль",
+                abv: 4.8,
+                ibu: 22,
+                price: 125,
+                description: "Легкий и освежающий блонд эль с медовыми нотами",
+                availability: "available",
+                badges: [],
+                volume: "0.5л"
+            },
+            {
+                id: 11,
+                name: "Red Ale «Алый закат»",
+                category: "special",
+                style: "Американский ред эль",
+                abv: 5.8,
+                ibu: 28,
+                price: 145,
+                description: "Медно-красный эль с карамельными и бисквитными нотами",
+                availability: "available",
+                badges: [],
+                volume: "0.5л"
+            },
+            {
+                id: 12,
+                name: "Sour «Кислинка»",
+                category: "special",
+                style: "Берлинер вайссе",
+                abv: 3.2,
+                ibu: 8,
+                price: 135,
+                description: "Освежающий кислый эль с фруктовыми нотами",
+                availability: "available",
+                badges: ["новинка"],
+                volume: "0.5л"
+            }
+        ];
+
+        // СИСТЕМА БОНУСНОЙ КАРТЫ С QR-КОДОМ
+        let bonusCard = {
+            points: 0,
+            level: "standard",
+            purchases: 0,
+            totalSpent: 0,
+            discount: 0,
+            history: [],
+            cardNumber: null
+        };
+
+        const bonusLevels = {
+            standard: { minPoints: 0, maxPoints: 499, pointsPer100: 1, discount: 0, name: "Стандарт" },
+            silver: { minPoints: 500, maxPoints: 1499, pointsPer100: 1.5, discount: 5, name: "Серебро" },
+            gold: { minPoints: 1500, maxPoints: Infinity, pointsPer100: 2, discount: 10, name: "Золото" }
+        };
+
+        let cart = [];
+        let currentFilter = 'all';
+        let searchTerm = '';
+
+        // ФУНКЦИИ ДЛЯ РАБОТЫ С ЛОКАЛЬНЫМ ХРАНИЛИЩЕМ
+        function saveBonusCard() {
+            localStorage.setItem('roggybrewBonusCard', JSON.stringify(bonusCard));
+        }
+
+        function loadBonusCard() {
+            const savedBonusCard = localStorage.getItem('roggybrewBonusCard');
+            if (savedBonusCard) {
+                bonusCard = JSON.parse(savedBonusCard);
+            }
+        }
+
+        // НОВАЯ ФУНКЦИЯ ДЛЯ ГЕНЕРАЦИИ НОМЕРА БОНУСНОЙ КАРТЫ
+        function generateBonusCardNumber() {
+            const prefix = 'RB';
+            const timestamp = Date.now().toString().slice(-8);
+            const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+            return prefix + timestamp + random;
+        }
+
+        // НОВАЯ ФУНКЦИЯ ДЛЯ СОЗДАНИЯ БОНУСНОЙ КАРТЫ ПРИ РЕГИСТРАЦИИ
+        function createBonusCardForUser() {
+            const cardNumber = generateBonusCardNumber();
+            
+            const userBonusCard = {
+                cardNumber: cardNumber,
+                points: 50,
+                level: "standard",
+                purchases: 0,
+                totalSpent: 0,
+                discount: 0,
+                history: [{
+                    id: Date.now(),
+                    type: 'earn',
+                    points: 50,
+                    description: 'Бонусы за регистрацию',
+                    date: new Date().toLocaleDateString('ru-RU')
+                }]
+            };
+            
+            // Сохраняем в localStorage
+            localStorage.setItem('roggybrewBonusCard', JSON.stringify(userBonusCard));
+            
+            // Обновляем текущую бонусную карту
+            bonusCard = userBonusCard;
+            
+            return userBonusCard;
+        }
+
+        // ОБНОВЛЕННАЯ ФУНКЦИЯ ДЛЯ ОБНОВЛЕНИЯ БОНУСНОЙ КАРТЫ
+        function updateBonusCardUI() {
+            const bonusLevelEl = document.getElementById('bonusLevel');
+            const bonusPointsValueEl = document.getElementById('bonusPointsValue');
+            const bonusDiscountEl = document.getElementById('bonusDiscount');
+            const bonusPurchasesEl = document.getElementById('bonusPurchases');
+            const bonusProgressBarEl = document.getElementById('bonusProgressBar');
+            const bonusNextLevelEl = document.getElementById('bonusNextLevel');
+            const bonusCardNumberEl = document.getElementById('bonusCardNumber');
+            
+            if (bonusLevelEl) bonusLevelEl.textContent = bonusLevels[bonusCard.level].name;
+            if (bonusPointsValueEl) bonusPointsValueEl.textContent = bonusCard.points;
+            if (bonusDiscountEl) bonusDiscountEl.textContent = bonusCard.discount + '%';
+            if (bonusPurchasesEl) bonusPurchasesEl.textContent = bonusCard.purchases;
+            
+            // Обновляем номер карты
+            if (bonusCardNumberEl && bonusCard.cardNumber) {
+                bonusCardNumberEl.textContent = bonusCard.cardNumber;
+            }
+            
+            let progress = 0;
+            let nextLevelPoints = 0;
+            
+            if (bonusCard.level === "standard") {
+                progress = (bonusCard.points / bonusLevels.silver.minPoints) * 100;
+                nextLevelPoints = bonusLevels.silver.minPoints - bonusCard.points;
+            } else if (bonusCard.level === "silver") {
+                progress = ((bonusCard.points - bonusLevels.silver.minPoints) / (bonusLevels.gold.minPoints - bonusLevels.silver.minPoints)) * 100;
+                nextLevelPoints = bonusLevels.gold.minPoints - bonusCard.points;
+            } else {
+                progress = 100;
+                nextLevelPoints = 0;
+            }
+            
+            if (bonusProgressBarEl) bonusProgressBarEl.style.width = Math.min(progress, 100) + '%';
+            if (bonusNextLevelEl) {
+                bonusNextLevelEl.textContent = nextLevelPoints > 0 ? nextLevelPoints + ' баллов' : 'Максимальный уровень';
+            }
+        }
+
+        // ОБНОВЛЕННАЯ ФУНКЦИЯ ДЛЯ КАТАЛОГА И КОРЗИНЫ
+        function renderCatalog() {
+            const catalogContainer = document.getElementById('catalogContainer');
+            if (!catalogContainer) return;
+
+            // Фильтрация пива по категории и поисковому запросу
+            const filteredBeers = beerCatalog.filter(beer => {
+                const matchesFilter = currentFilter === 'all' || beer.category === currentFilter;
+                const matchesSearch = searchTerm === '' || 
+                  beer.name.toLowerCase().includes(searchTerm) || 
+                  beer.description.toLowerCase().includes(searchTerm) ||
+                  beer.style.toLowerCase().includes(searchTerm);
+                
+                return matchesFilter && matchesSearch;
+            });
+
+            if (filteredBeers.length === 0) {
+                catalogContainer.innerHTML = `
+                  <div style="text-align: center; padding: 40px; color: var(--muted);">
+                    <div style="font-size: 3rem; margin-bottom: 15px;">????</div>
+                    <h4 style="margin-bottom: 10px;">Ничего не найдено</h4>
+                    <p>Попробуйте изменить параметры поиска или выбрать другую категорию</p>
+                  </div>
+                `;
+                return;
+            }
+
+            catalogContainer.innerHTML = filteredBeers.map(beer => `
+                <div class="beer-card" data-id="${beer.id}" data-category="${beer.category}">
+                    <div class="beer-info">
+                        <div class="beer-name">
+                            ${beer.name}
+                            ${beer.badges.map(badge => `<span class="beer-badge">${badge}</span>`).join('')}
+                        </div>
+                        <div class="beer-details">${beer.style} • ${beer.volume}</div>
+                        <div class="beer-description">${beer.description}</div>
+                        <div class="beer-stats">
+                            <span class="beer-stat">${beer.abv}% ABV</span>
+                            <span class="beer-stat">IBU: ${beer.ibu}</span>
+                            <span class="availability ${beer.availability}">
+                                ${beer.availability === 'available' ? 'В наличии' : beer.availability === 'low-stock' ? 'Мало' : 'Нет в наличии'}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="beer-price">${beer.price} ₽</div>
+                </div>
+            `).join('');
+
+            // Добавляем обработчики событий для карточек пива
+            catalogContainer.querySelectorAll('.beer-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const beerId = parseInt(card.dataset.id);
+                    const beer = beerCatalog.find(b => b.id === beerId);
+                    if (beer && beer.availability !== 'out-of-stock') {
+                        addToCart(beer);
+                        card.style.background = 'linear-gradient(90deg, rgba(212,175,55,0.1), rgba(212,175,55,0.05))';
+                        setTimeout(() => { card.style.background = ''; }, 500);
+                    } else if (beer && beer.availability === 'out-of-stock') {
+                        alert('Этот сорт временно отсутствует в наличии');
+                    }
+                });
+            });
+        }
+
+        function addToCart(beer) {
+            cart.push({
+                id: beer.id,
+                name: beer.name,
+                price: beer.price,
+                style: beer.style,
+                volume: beer.volume
+            });
+            renderCart();
+            updateCartStats();
+        }
+
+        function renderCart() {
+            const cartListEl = document.getElementById('cartList');
+            if (!cartListEl) return;
+            
+            if (cart.length === 0) {
+                cartListEl.innerHTML = '<li style="text-align:center;color:var(--muted);padding:20px;">Корзина пуста</li>';
+                return;
+            }
+            
+            cartListEl.innerHTML = '';
+            cart.forEach((item, i) => {
+                const li = document.createElement('li');
+                li.className = 'cart-item';
+                
+                const itemInfo = document.createElement('div');
+                itemInfo.innerHTML = `
+                    <div style="font-weight:600;">${item.name}</div>
+                    <div style="font-size:0.8rem;color:var(--muted);">${item.style} • ${item.volume}</div>
+                `;
+                
+                const price = document.createElement('span');
+                price.textContent = item.price + ' ₽';
+                price.style.color = 'var(--gold)';
+                price.style.fontWeight = '600';
+                
+                const removeBtn = document.createElement('button');
+                removeBtn.textContent = '×';
+                removeBtn.className = 'cart-remove';
+                removeBtn.title = 'Удалить из корзины';
+                removeBtn.addEventListener('click', (e) => { 
+                    e.stopPropagation();
+                    cart.splice(i, 1); 
+                    renderCart(); 
+                    updateCartStats();
+                });
+                
+                li.appendChild(itemInfo);
+                li.appendChild(price);
+                li.appendChild(removeBtn);
+                cartListEl.appendChild(li);
+            });
+        }
+
+        function updateCartStats() {
+            const cartCount = document.getElementById('cartCount');
+            const cartTotal = document.getElementById('cartTotal');
+            
+            if (cartCount && cartTotal) {
+                cartCount.textContent = cart.length;
+                const total = cart.reduce((sum, item) => sum + item.price, 0);
+                cartTotal.textContent = total + ' ₽';
+            }
+        }
+
+        // НАСТРОЙКА ФИЛЬТРОВ И ПОИСКА
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.filter;
+                renderCatalog();
+            });
+        });
+
+        const catalogSearch = document.getElementById('catalogSearch');
+        if (catalogSearch) {
+            catalogSearch.addEventListener('input', (e) => {
+                searchTerm = e.target.value.toLowerCase();
+                renderCatalog();
+            });
+        }
+
+        // КНОПКА ОФОРМЛЕНИЯ ЗАКАЗА
+        const checkoutBtn = document.getElementById('checkoutBtn');
+        if (checkoutBtn) {
+            checkoutBtn.addEventListener('click', () => {
+                if (cart.length === 0) {
+                    alert('Корзина пуста');
+                    return;
+                }
+                alert('Заказ оформлен! Спасибо за покупку.');
+                cart = [];
+                renderCart();
+                updateCartStats();
+            });
+        }
+    </script>
 </body>
 </html>
